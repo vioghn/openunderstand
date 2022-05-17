@@ -334,7 +334,7 @@ if __name__ == '__main__':
     db = db_open("../benchmark2_database.oudb")
 
     # path = "D:/Term 7/Compiler/Final proj/github/OpenUnderstand/benchmark"
-    path = "C:/Users/Asus/PycharmProjects/pythonProject1/benchmark/105_freemind"
+    path = "C:/Users/Asus/PycharmProjects/pythonProject1/benchmark/calculator_app"
     files = p.getListOfFiles(path)
     ########## AGE KHASTID YEK FILE RO RUN KONID:
     # files = ["../../Java codes/javaCoupling.java"]

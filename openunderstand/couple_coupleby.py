@@ -49,6 +49,12 @@ class CoupleAndCoupleBy(JavaParserLabeledListener):
     def get_classes(self):
         return self.classes
 
+    def extract_original_text(self, ctx):
+        token_source = ctx.start.getTokenSource()
+        input_stream = token_source.inputStream
+        start, stop = ctx.start.start, ctx.stop.stop
+        return input_stream.getText(start, stop)
+
 
     def enterClassDeclaration(self, ctx:JavaParserLabeled.ClassDeclarationContext):
         if (True):
@@ -62,7 +68,7 @@ class CoupleAndCoupleBy(JavaParserLabeledListener):
             self.dic = {"scope_kind": "Class", "scope_name": ctx.IDENTIFIER().__str__(),
                                            "scope_longname": self.packageName + '.' + scope_longname,
                                            "scope_parent": scope_parents[-2] if len(scope_parents) >= 2 else None,
-                                           "scope_contents": ctx.getText(),
+                                           "scope_contents": self.extract_original_text(ctx),
                                            "scope_modifiers": self.Modifiers , 'File' : self.file , 'line':line ,  'col' : col[:-1] }
             if(ctx.EXTENDS() != None):
                 self.extend = True

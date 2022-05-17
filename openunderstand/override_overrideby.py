@@ -73,6 +73,14 @@ class overridelistener(JavaParserLabeledListener):
     def set_list(self , extendedlistx):
         self.extendedlist = extendedlistx
 
+
+    def extract_original_text(self, ctx):
+        token_source = ctx.start.getTokenSource()
+        input_stream = token_source.inputStream
+        start , stop = ctx.start.start , ctx.stop.stop
+        return input_stream.getText(start , stop)
+
+
     def enterImportDeclaration(self, ctx:JavaParserLabeled.ImportDeclarationContext):
         imported_class_longname = ctx.qualifiedName().getText()
         imported_class_name = imported_class_longname.split('.')[-1]
@@ -84,20 +92,17 @@ class overridelistener(JavaParserLabeledListener):
     def enterClassDeclaration(self, ctx: JavaParserLabeled.ClassDeclarationContext):
 
         self.class_Name = ctx.IDENTIFIER().getText()
-        keyword = self.packageName + '.' + self.class_Name;
+        keyword = self.packageName + '.' + self.class_Name
         self.classes[keyword] = []
-        if (ctx.EXTENDS() != None):
+        if ctx.EXTENDS() != None:
             self.extend_word = True
             self.classes[keyword] = []
             self.isclass = True
 
 
-
-
     def enterMethodDeclaration(self, ctx: JavaParserLabeled.MethodDeclarationContext):
         mymethod = ctx.getText().split('(')
         keyword = self.packageName + '.' +self.class_Name
-
 
         if(True):
             scope_parents = class_properties.ClassPropertiesListener.findParents(ctx)
@@ -120,12 +125,12 @@ class overridelistener(JavaParserLabeledListener):
             self.dic = { "MethodIs":mymethod[0] , "scope_kind": "Method", "scope_name": ctx.IDENTIFIER().getText(),
                                           "scope_longname": self.packageName + '.'+ scope_longname,
                                           "scope_parent": scope_parents[-2] if len(scope_parents) >= 2 else None,
-                                          "scope_contents": ctx.getText() ,
+                                          "scope_contents": self.extract_original_text(ctx),
                                           "scope_modifiers": list(reversed(self.modifiers)),
                                           "line": line,
                                           "col": col[:-1],
                                           "type_ent_longname": self.packageName + '.' +self.class_Name, 'File' : self.FileName,
-                                          'is_overrided' : self.isoverride , 'referenced': self.referencekind , 'modifiersx': string + ' ' + 'Method' }
+                                          'is_overrided' : self.isoverride, 'referenced': self.referencekind , 'modifiersx': string + ' ' + 'Method' }
 
 
             self.modifiers = []
@@ -154,19 +159,19 @@ class overridelistener(JavaParserLabeledListener):
             if type(x).__name__ == 'ModifierContext' :
                 self.modifiers.append(x.getText())
 
-                if(type(x.children[0]).__name__ != 'TerminalNodeImpl'):
+                if type(x.children[0]).__name__ != 'TerminalNodeImpl':
                     y = x.children[0]
-                    if( type(y.children[0]).__name__  == 'AnnotationContext' ):
+                    if type(y.children[0]).__name__  == 'AnnotationContext' :
                             self.modifiers.remove(x.getText())
 
 
 
 
-            if( type(x).__name__ ==    'MemberDeclaration0Context'  ):
-                if( type(x.children[0]).__name__  != 'MethodDeclarationContext' ):
+            if type(x).__name__ ==    'MemberDeclaration0Context'  :
+                if type(x.children[0]).__name__  != 'MethodDeclarationContext':
                          # print('maninjam')
                          self.modifiers = []
-            elif (type(x).__name__ != 'MemberDeclaration0Context' and type(x).__name__ !=  'ModifierContext'):
+            elif type(x).__name__ != 'MemberDeclaration0Context' and type(x).__name__ !=  'ModifierContext':
                     self.modifiers = []
 
 
@@ -174,11 +179,11 @@ class overridelistener(JavaParserLabeledListener):
 
     def enterClassOrInterfaceType(self, ctx: JavaParserLabeled.ClassOrInterfaceTypeContext):
 
-        if(self.extend_word  and self.isclass) :
+        if self.extend_word  and self.isclass :
             self.extendedname = ctx.IDENTIFIER()[0].getText()
             key1 = self.packageName + '.'+self.class_Name
 
-            if(self.extendedname in self.Imports):
+            if self.extendedname in self.Imports :
                 key2 = self.Imports[self.extendedname]
             else:
                 key2 = self.packageName + '.' + self.extendedname
@@ -199,7 +204,7 @@ class overridelistener(JavaParserLabeledListener):
     def enterTypeTypeOrVoid(self, ctx:JavaParserLabeled.TypeTypeOrVoidContext):
        if( type(ctx.parentCtx).__name__ == 'MethodDeclarationContext'):
             x = ctx.children[0]
-            if(type(x).__name__ == 'TypeTypeContext'):
+            if type(x).__name__ == 'TypeTypeContext':
                     t = x.children[0]
                     tt = t.children[0]
                     #print(tt.getText())
@@ -216,7 +221,7 @@ class overridelistener(JavaParserLabeledListener):
             self.classes[self.dic['type_ent_longname']].append(self.dic)
 
     def enterAnnotation(self, ctx:JavaParserLabeled.AnnotationContext):
-        if(ctx.qualifiedName().getText() == 'Override'):
+        if ctx.qualifiedName().getText() == 'Override':
             self.isoverride = True
             #print('Override')
 
